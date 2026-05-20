@@ -8,8 +8,8 @@ better" stops being a guess.
 
 Bring your own key. No backend. Nothing leaves your browser.
 
-**[Live → prompt-lab.vercel.app](https://prompt-lab.vercel.app)** ·
-**[See it with no key → /?demo=1](https://prompt-lab.vercel.app/?demo=1)**
+**[Live → prompt-lab-promptly.vercel.app](https://prompt-lab-promptly.vercel.app)** ·
+**[See it with no key → /?demo=1](https://prompt-lab-promptly.vercel.app/?demo=1)**
 
 ![prompt-lab](docs/preview.png)
 
@@ -47,8 +47,9 @@ src/
     page.tsx          orchestration: runs both variants concurrently
     globals.css       design tokens, dark theme
   components/
-    VariantColumn.tsx  one side — config, streaming output, metrics
-    Verdict.tsx        head-to-head comparison strip
+    PromptCard.tsx     the shared input + run control
+    VariantCard.tsx    one contestant — config, streaming output, metrics
+    Scoreboard.tsx     head-to-head verdict, scored
     KeyDialog.tsx      BYOK key entry
   lib/
     anthropic.ts      fetch-based streaming client + SSE parser

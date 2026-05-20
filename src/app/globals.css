@@ -2,17 +2,19 @@
 
 :root {
   color-scheme: dark;
-  --bg: #08080a;
-  --bg-elev: #101015;
-  --bg-elev-2: #16161c;
-  --border: #232329;
-  --border-strong: #34343c;
-  --fg: #ededee;
-  --fg-muted: #9a9aa3;
-  --fg-faint: #5e5e66;
+  --bg: #090a0d;
+  --bg-elev: #121319;
+  --bg-elev-2: #181a22;
+  --border: #24252e;
+  --border-strong: #353745;
+  --fg: #f0f0f2;
+  --fg-muted: #9c9da8;
+  --fg-faint: #61626e;
   --accent: #f0a06b;
   --variant-a: #f0a06b;
+  --variant-a-soft: rgba(240, 160, 107, 0.13);
   --variant-b: #6ba8f0;
+  --variant-b-soft: rgba(107, 168, 240, 0.13);
   --success: #7cd3a3;
   --warn: #f0c66b;
   --danger: #f07c7c;
@@ -45,10 +47,12 @@ html, body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* The A/B duality, painted into the canvas: warm on the left, cool on the right. */
 body {
   background-image:
-    radial-gradient(1100px 560px at 78% -10%, rgba(240, 160, 107, 0.05), transparent 60%),
-    radial-gradient(1100px 560px at 22% 110%, rgba(107, 168, 240, 0.05), transparent 60%);
+    radial-gradient(820px 620px at 8% 2%, rgba(240, 160, 107, 0.11), transparent 60%),
+    radial-gradient(820px 620px at 92% 2%, rgba(107, 168, 240, 0.11), transparent 60%),
+    radial-gradient(900px 500px at 50% 120%, rgba(240, 160, 107, 0.04), transparent 65%);
   background-attachment: fixed;
 }
 
@@ -60,8 +64,17 @@ textarea, input { font-family: inherit; }
 
 *::-webkit-scrollbar { width: 10px; height: 10px; }
 *::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 8px; }
-*::-webkit-scrollbar-thumb:hover { background: #44444c; }
+*::-webkit-scrollbar-thumb:hover { background: #44454f; }
 *::-webkit-scrollbar-track { background: transparent; }
 
 @keyframes caret-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
 .caret-blink { animation: caret-blink 1s steps(1) infinite; }
+
+/* Soft elevation for the floating cards. */
+.card {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 18px 40px -24px rgba(0, 0, 0, 0.85);
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Radio, Check, TriangleAlert, CircleDot } from "lucide-react";
+import { Radio, Check, TriangleAlert, CircleDashed, MessageSquare } from "lucide-react";
 import type { Variant, VariantResult } from "@/lib/types";
 import { MODEL_SUGGESTIONS } from "@/lib/types";
 import { computeCost, formatMs, formatNum, formatUSD } from "@/lib/pricing";
@@ -13,8 +13,10 @@ interface Props {
   running: boolean;
 }
 
-export function VariantColumn({ variant, result, onChange, running }: Props) {
-  const color = variant.id === "A" ? "var(--variant-a)" : "var(--variant-b)";
+export function VariantCard({ variant, result, onChange, running }: Props) {
+  const isA = variant.id === "A";
+  const color = isA ? "var(--variant-a)" : "var(--variant-b)";
+  const soft = isA ? "var(--variant-a-soft)" : "var(--variant-b-soft)";
   const scrollRef = useRef<HTMLDivElement>(null);
   const patch = (p: Partial<Variant>) => onChange({ ...variant, ...p });
 
@@ -24,30 +26,37 @@ export function VariantColumn({ variant, result, onChange, running }: Props) {
     }
   }, [result.output, result.status]);
 
+  const streaming = result.status === "streaming";
   const cost = computeCost(variant.model, result.usage);
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
-      {/* Header */}
-      <div className="flex items-center gap-2 border-b border-border px-3 py-2">
+    <div
+      className="card flex min-h-0 flex-col overflow-hidden rounded-2xl transition-shadow"
+      style={streaming ? { boxShadow: `0 0 0 1px ${color}, 0 0 28px -8px ${color}` } : undefined}
+    >
+      {/* Header band */}
+      <div
+        className="flex items-center gap-2.5 border-b border-border px-4 py-3"
+        style={{ background: soft }}
+      >
         <span
-          className="flex h-6 w-6 items-center justify-center rounded-md text-sm font-bold text-black"
+          className="flex h-8 w-8 items-center justify-center rounded-full text-base font-bold text-black"
           style={{ background: color }}
         >
           {variant.id}
         </span>
-        <span className="text-xs font-medium uppercase tracking-wider text-fg-muted">
-          Variant {variant.id}
-        </span>
+        <div className="leading-tight">
+          <div className="text-sm font-semibold text-fg">Variant {variant.id}</div>
+          <div className="text-[11px] text-fg-faint">{labelFor(variant)}</div>
+        </div>
         <span className="ml-auto">
-          <StatusBadge status={result.status} color={color} />
+          <StatusPill status={result.status} color={color} />
         </span>
       </div>
 
       {/* Config */}
-      <div className="space-y-2.5 border-b border-border p-3">
-        <div>
-          <Label>Model</Label>
+      <div className="space-y-3 border-b border-border p-4">
+        <Field label="Model">
           <input
             list={`models-${variant.id}`}
             value={variant.model}
@@ -65,9 +74,8 @@ export function VariantColumn({ variant, result, onChange, running }: Props) {
               </option>
             ))}
           </datalist>
-        </div>
-        <div>
-          <Label>System prompt</Label>
+        </Field>
+        <Field label="System prompt">
           <textarea
             value={variant.system}
             onChange={(e) => patch({ system: e.target.value })}
@@ -77,9 +85,8 @@ export function VariantColumn({ variant, result, onChange, running }: Props) {
             placeholder="System prompt for this variant…"
             className="w-full resize-y rounded-lg border border-border-strong bg-bg px-2.5 py-1.5 text-[13px] leading-relaxed text-fg outline-none transition-colors placeholder:text-fg-faint focus:border-accent disabled:opacity-60"
           />
-        </div>
-        <div>
-          <Label>Temperature · {variant.temperature.toFixed(1)}</Label>
+        </Field>
+        <Field label={`Temperature · ${variant.temperature.toFixed(1)}`}>
           <input
             type="range"
             min={0}
@@ -88,22 +95,23 @@ export function VariantColumn({ variant, result, onChange, running }: Props) {
             value={variant.temperature}
             onChange={(e) => patch({ temperature: Number(e.target.value) })}
             disabled={running}
-            className="w-full accent-[var(--accent)] disabled:opacity-60"
+            className="w-full disabled:opacity-60"
+            style={{ accentColor: color }}
           />
-        </div>
+        </Field>
       </div>
 
       {/* Output */}
-      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto p-3">
+      <div ref={scrollRef} className="max-h-[420px] min-h-[176px] flex-1 overflow-y-auto p-4">
         {result.status === "error" ? (
           <div className="flex items-start gap-2 rounded-lg border border-danger/30 bg-danger/5 p-2.5 text-[13px] text-danger">
             <TriangleAlert size={14} className="mt-0.5 shrink-0" />
             <span className="font-mono leading-relaxed">{result.error}</span>
           </div>
         ) : result.output ? (
-          <div className="whitespace-pre-wrap text-[13px] leading-relaxed text-fg">
+          <div className="whitespace-pre-wrap text-[13.5px] leading-relaxed text-fg">
             {result.output}
-            {result.status === "streaming" && (
+            {streaming && (
               <span
                 className="caret-blink ml-0.5 inline-block h-[1em] w-[2px] -translate-y-[1px] align-middle"
                 style={{ background: color }}
@@ -111,16 +119,21 @@ export function VariantColumn({ variant, result, onChange, running }: Props) {
             )}
           </div>
         ) : (
-          <p className="pt-6 text-center text-xs text-fg-faint">
-            {result.status === "streaming" ? "waiting for first token…" : "no output yet"}
-          </p>
+          <div className="flex h-full flex-col items-center justify-center gap-2 py-6 text-center">
+            <MessageSquare size={20} style={{ color }} className="opacity-40" />
+            <p className="text-xs text-fg-faint">
+              {streaming
+                ? "waiting for first token…"
+                : `Variant ${variant.id}'s response will appear here.`}
+            </p>
+          </div>
         )}
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-4 gap-px border-t border-border bg-border">
-        <Stat label="out" value={result.usage.output_tokens ? formatNum(result.usage.output_tokens) : "—"} />
-        <Stat label="cost" value={result.usage.output_tokens ? formatUSD(cost) : "—"} />
+        <Stat label="output" value={result.usage.output_tokens ? formatNum(result.usage.output_tokens) : "—"} />
+        <Stat label="cost" value={result.usage.output_tokens ? formatUSD(cost) : "—"} accent={color} />
         <Stat label="ttfb" value={result.ttfbMs != null ? `${Math.round(result.ttfbMs)}ms` : "—"} />
         <Stat label="time" value={result.latencyMs != null ? formatMs(result.latencyMs) : "—"} />
       </div>
@@ -128,26 +141,36 @@ export function VariantColumn({ variant, result, onChange, running }: Props) {
   );
 }
 
-function Label({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-fg-faint">
-      {children}
-    </span>
-  );
+function labelFor(v: Variant): string {
+  const known = MODEL_SUGGESTIONS.find((m) => m.id === v.model);
+  return known ? known.label : v.model.replace(/^claude-/, "").replace(/-\d{8}$/, "") || "—";
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="bg-bg-elev px-2 py-1.5 text-center">
-      <div className="font-mono text-[13px] text-fg">{value}</div>
-      <div className="text-[9px] uppercase tracking-wider text-fg-faint">{label}</div>
+    <div>
+      <span className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-fg-faint">
+        {label}
+      </span>
+      {children}
     </div>
   );
 }
 
-function StatusBadge({ status, color }: { status: VariantResult["status"]; color: string }) {
+function Stat({ label, value, accent }: { label: string; value: string; accent?: string }) {
+  return (
+    <div className="bg-bg-elev px-2 py-2 text-center">
+      <div className="font-mono text-[13px]" style={{ color: accent ?? "var(--fg)" }}>
+        {value}
+      </div>
+      <div className="mt-0.5 text-[9px] uppercase tracking-wider text-fg-faint">{label}</div>
+    </div>
+  );
+}
+
+function StatusPill({ status, color }: { status: VariantResult["status"]; color: string }) {
   const map = {
-    idle: { label: "idle", icon: <CircleDot size={11} /> },
+    idle: { label: "idle", icon: <CircleDashed size={11} /> },
     streaming: { label: "streaming", icon: <Radio size={11} /> },
     done: { label: "done", icon: <Check size={11} /> },
     error: { label: "error", icon: <TriangleAlert size={11} /> },
@@ -162,8 +185,8 @@ function StatusBadge({ status, color }: { status: VariantResult["status"]; color
           : "var(--fg-faint)";
   return (
     <span
-      className="flex items-center gap-1 text-[10px] font-medium uppercase tracking-wider"
-      style={{ color: c }}
+      className="flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider"
+      style={{ color: c, borderColor: `color-mix(in srgb, ${c} 35%, transparent)` }}
     >
       <span className={status === "streaming" ? "animate-pulse" : ""}>{map.icon}</span>
       {map.label}
