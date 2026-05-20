@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# prompt-lab
 
-## Getting Started
+**A/B test your Claude prompts, side by side.**
 
-First, run the development server:
+Run one input through two prompts (or two models) at the same time, watch both
+stream in parallel, then compare output, cost, and latency — so "which prompt is
+better" stops being a guess.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Bring your own key. No backend. Nothing leaves your browser.
+
+**[Live → prompt-lab.vercel.app](https://prompt-lab.vercel.app)** ·
+**[See it with no key → /?demo=1](https://prompt-lab.vercel.app/?demo=1)**
+
+![prompt-lab](docs/preview.png)
+
+---
+
+## Why
+
+Prompt engineering is mostly A/B testing done badly — you tweak a system prompt,
+run it, squint at the output, and try to remember how the last version felt.
+There's no side-by-side, and the cost/latency tradeoff is invisible.
+
+prompt-lab makes the comparison concrete: same input, two variants, both run at
+once. You see the outputs next to each other *and* the numbers — so "more
+detailed" comes with "4× the tokens and 3× the latency" attached.
+
+## What it does
+
+- **One input, two variants** — each variant has its own model, system prompt,
+  and temperature. The user message is shared.
+- **Parallel streaming** — both variants stream at the same time, side by side.
+- **Per-variant metrics** — output tokens, estimated cost, time-to-first-token,
+  total time.
+- **A verdict** — cost, speed, and output-length compared head to head, with the
+  winner and the ratio (e.g. *A is 4.3× cheaper*).
+- **BYOK, zero backend** — requests go straight from your browser to Anthropic;
+  the key lives only in `localStorage`.
+- **Sample mode** — no key? Hit *Sample* (or open `?demo=1`) to see a full
+  comparison: a terse prompt vs. a teaching prompt on the same question.
+
+## How it works
+
+```
+src/
+  app/
+    page.tsx          orchestration: runs both variants concurrently
+    globals.css       design tokens, dark theme
+  components/
+    VariantColumn.tsx  one side — config, streaming output, metrics
+    Verdict.tsx        head-to-head comparison strip
+    KeyDialog.tsx      BYOK key entry
+  lib/
+    anthropic.ts      fetch-based streaming client + SSE parser
+    pricing.ts        tier-aware cost model
+    sample.ts         the built-in sample comparison
+    types.ts          variant + result types
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Both variants are fired concurrently from one click — each gets its own
+`AbortController`, its own stream, and its own slice of state — so the page
+is genuinely racing two requests, not running them one after another.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Cost is estimated from the model *tier* (opus / sonnet / haiku, detected from
+the model name), so dated snapshots and future versions still price sensibly.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Run locally
 
-## Learn More
+```bash
+npm install
+npm run dev
+# open http://localhost:3000
+```
 
-To learn more about Next.js, take a look at the following resources:
+You'll need an Anthropic API key — create one at
+[console.anthropic.com](https://console.anthropic.com/settings/keys).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deploy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Static, no environment variables. One-click on Vercel:
 
-## Deploy on Vercel
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/ferhatatagun/prompt-lab)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Tech
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Next.js 16 · React 19 · TypeScript · Tailwind CSS v4 · Framer Motion
+
+## License
+
+MIT — see [LICENSE](LICENSE).
