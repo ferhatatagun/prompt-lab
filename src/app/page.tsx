@@ -172,6 +172,14 @@ export default function Home() {
               <span className="font-mono">{mounted ? keyMasked : "…"}</span>
             </button>
             <a
+              href="https://ferhatatagun.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden items-center gap-1 px-2 text-[11px] text-fg-faint transition-colors hover:text-accent sm:flex"
+            >
+              ferhatatagun.com ↗
+            </a>
+            <a
               href="https://github.com/ferhatatagun/prompt-lab"
               target="_blank"
               rel="noopener noreferrer"
