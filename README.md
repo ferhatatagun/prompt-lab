@@ -82,6 +82,16 @@ Static, no environment variables. One-click on Vercel:
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/ferhatatagun/prompt-lab)
 
+## Read the story
+
+The case for measuring prompt iteration instead of shipping by vibes:
+
+- [**Your prompt isn't better. You just remember it being better.**](https://ferhatatagun.com/blog/stop-choosing-prompts-by-vibes)
+  — why "feels better" is not data, what side-by-side comparison surfaces
+  that sequential never does (output, latency, cost in one view), and a
+  worked example where the shorter prompt won by 28% cost / 41% latency
+  with no semantic loss on what mattered.
+
 ## Tech
 
 Next.js 16 · React 19 · TypeScript · Tailwind CSS v4 · Framer Motion
