@@ -59,7 +59,8 @@ src/
     KeyDialog.tsx      BYOK key entry
   lib/
     anthropic.ts      fetch-based streaming client + SSE parser
-    pricing.ts        tier-aware cost model
+    models.ts         model catalog: ids, per-model pricing, capabilities
+    pricing.ts        cost model built on the catalog
     sample.ts         the built-in sample comparison
     types.ts          variant + result types
 ```
@@ -68,8 +69,11 @@ Both variants are fired concurrently from one click — each gets its own
 `AbortController`, its own stream, and its own slice of state — so the page
 is genuinely racing two requests, not running them one after another.
 
-Cost is estimated from the model *tier* (opus / sonnet / haiku, detected from
-the model name), so dated snapshots and future versions still price sensibly.
+Cost is priced **per model** from the catalog in `src/lib/models.ts` — the 5.x
+generation no longer shares one price per tier. Dated snapshots resolve to their
+model, and an id that isn't in the catalog is priced as the newest model of its
+family. Models that reject sampling parameters (most current ones) don't get
+`temperature` sent; the control is disabled for them.
 
 ## Run locally
 

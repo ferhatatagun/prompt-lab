@@ -1,4 +1,5 @@
 import type { UsageStats } from "./types";
+import { supportsSampling } from "./models";
 
 /**
  * Direct browser → Anthropic streaming, over `fetch` with a hand-rolled SSE
@@ -69,7 +70,8 @@ export async function runStream(
       body: JSON.stringify({
         model: req.model,
         max_tokens: req.maxTokens,
-        temperature: req.temperature,
+        // Newer models reject sampling parameters outright; omit rather than 400.
+        temperature: supportsSampling(req.model) ? req.temperature : undefined,
         system: req.system.trim() || undefined,
         messages: [{ role: "user", content: req.userMessage }],
         stream: true,
@@ -112,13 +114,18 @@ export async function runStream(
             cb.onUsage({ ...usage });
             break;
           }
+          case "content_block_start": {
+            // Models that think by default open with a thinking block before any
+            // text. Counting the first block of any kind keeps TTFB honest.
+            if (!firstTokenSeen) {
+              firstTokenSeen = true;
+              cb.onFirstToken();
+            }
+            break;
+          }
           case "content_block_delta": {
             const delta = evt.delta as Record<string, unknown> | undefined;
             if (delta?.type === "text_delta" && typeof delta.text === "string") {
-              if (!firstTokenSeen) {
-                firstTokenSeen = true;
-                cb.onFirstToken();
-              }
               cb.onText(delta.text);
             }
             break;

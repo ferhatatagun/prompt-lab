@@ -1,32 +1,19 @@
 import type { UsageStats } from "./types";
+import { priceFor, resolveModel } from "./models";
 
-// USD per 1M tokens, by model tier. Reflects Anthropic's published pricing.
-// The tier is detected from the model name, so dated snapshots and future
-// minor versions still get a sensible estimate. Edit here when pricing changes.
-interface Price {
-  input: number;
-  cacheRead: number;
-  output: number;
-}
-
-const TIERS: Record<"opus" | "sonnet" | "haiku", Price> = {
-  opus: { input: 15, cacheRead: 1.5, output: 75 },
-  sonnet: { input: 3, cacheRead: 0.3, output: 15 },
-  haiku: { input: 1, cacheRead: 0.1, output: 5 },
-};
-
-export function tierOf(model: string): "opus" | "sonnet" | "haiku" {
-  const m = model.toLowerCase();
-  if (m.includes("opus")) return "opus";
-  if (m.includes("haiku")) return "haiku";
-  return "sonnet";
-}
+// Pricing comes from the model catalog (src/lib/models.ts), per model: the
+// 5.x generation no longer shares one price per tier. Unknown ids price as the
+// newest model of their family, so future releases still get a sensible
+// estimate. Edit the catalog when pricing changes.
 
 export function computeCost(model: string, usage: UsageStats): number {
-  const p = TIERS[tierOf(model)];
+  const promptTokens =
+    usage.input_tokens + usage.cache_read_input_tokens + usage.cache_creation_input_tokens;
+  const p = priceFor(resolveModel(model).model, promptTokens);
   return (
     (usage.input_tokens / 1_000_000) * p.input +
     (usage.cache_read_input_tokens / 1_000_000) * p.cacheRead +
+    (usage.cache_creation_input_tokens / 1_000_000) * p.cacheWrite5m +
     (usage.output_tokens / 1_000_000) * p.output
   );
 }
