@@ -1,3 +1,5 @@
+import { MODEL_OPTIONS, modelLabel } from "./models";
+
 export type VariantId = "A" | "B";
 
 export interface Variant {
@@ -41,15 +43,7 @@ export const EMPTY_RESULT: VariantResult = {
   error: null,
 };
 
-/** Suggestions for the model autocomplete. Not exhaustive — type anything. */
-export const MODEL_SUGGESTIONS: { id: string; label: string }[] = [
-  { id: "claude-sonnet-4-5-20250929", label: "Sonnet 4.5" },
-  { id: "claude-haiku-4-5-20251001", label: "Haiku 4.5" },
-  { id: "claude-opus-4-1-20250805", label: "Opus 4.1" },
-];
+/** Model autocomplete options. Not exhaustive — type anything. */
+export const MODEL_SUGGESTIONS = MODEL_OPTIONS;
 
-export function shortModel(id: string): string {
-  const known = MODEL_SUGGESTIONS.find((m) => m.id === id);
-  if (known) return known.label;
-  return id.replace(/^claude-/, "").replace(/-\d{8}$/, "");
-}
+export const shortModel = modelLabel;

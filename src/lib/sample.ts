@@ -1,6 +1,6 @@
 import type { UsageStats, Variant } from "./types";
 
-const MODEL = "claude-sonnet-4-5-20250929";
+const MODEL = "claude-sonnet-5-5";
 
 export const DEFAULT_INPUT = "Explain what a database index is.";
 

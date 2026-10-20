@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { Radio, Check, TriangleAlert, CircleDashed, MessageSquare } from "lucide-react";
 import type { Variant, VariantResult } from "@/lib/types";
 import { MODEL_SUGGESTIONS } from "@/lib/types";
+import { modelLabel, supportsSampling } from "@/lib/models";
 import { computeCost, formatMs, formatNum, formatUSD } from "@/lib/pricing";
 
 interface Props {
@@ -28,6 +29,7 @@ export function VariantCard({ variant, result, onChange, running }: Props) {
 
   const streaming = result.status === "streaming";
   const cost = computeCost(variant.model, result.usage);
+  const sampling = supportsSampling(variant.model);
 
   return (
     <div
@@ -64,7 +66,7 @@ export function VariantCard({ variant, result, onChange, running }: Props) {
             disabled={running}
             spellCheck={false}
             autoComplete="off"
-            placeholder="claude-sonnet-4-5-20250929"
+            placeholder="claude-sonnet-5-5"
             className="w-full rounded-lg border border-border-strong bg-bg px-2.5 py-1.5 font-mono text-xs text-fg outline-none transition-colors placeholder:text-fg-faint focus:border-accent disabled:opacity-60"
           />
           <datalist id={`models-${variant.id}`}>
@@ -86,7 +88,13 @@ export function VariantCard({ variant, result, onChange, running }: Props) {
             className="w-full resize-y rounded-lg border border-border-strong bg-bg px-2.5 py-1.5 text-[13px] leading-relaxed text-fg outline-none transition-colors placeholder:text-fg-faint focus:border-accent disabled:opacity-60"
           />
         </Field>
-        <Field label={`Temperature · ${variant.temperature.toFixed(1)}`}>
+        <Field
+          label={
+            sampling
+              ? `Temperature · ${variant.temperature.toFixed(1)}`
+              : "Temperature · fixed by model"
+          }
+        >
           <input
             type="range"
             min={0}
@@ -94,7 +102,8 @@ export function VariantCard({ variant, result, onChange, running }: Props) {
             step={0.1}
             value={variant.temperature}
             onChange={(e) => patch({ temperature: Number(e.target.value) })}
-            disabled={running}
+            disabled={running || !sampling}
+            title={sampling ? undefined : "This model rejects sampling parameters, so temperature is not sent."}
             className="w-full disabled:opacity-60"
             style={{ accentColor: color }}
           />
@@ -142,8 +151,7 @@ export function VariantCard({ variant, result, onChange, running }: Props) {
 }
 
 function labelFor(v: Variant): string {
-  const known = MODEL_SUGGESTIONS.find((m) => m.id === v.model);
-  return known ? known.label : v.model.replace(/^claude-/, "").replace(/-\d{8}$/, "") || "—";
+  return modelLabel(v.model) || "—";
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {

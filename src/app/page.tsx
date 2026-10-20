@@ -12,7 +12,8 @@ import { loadApiKey, saveApiKey } from "@/lib/storage";
 import { DEFAULT_INPUT, DEFAULT_VARIANT_A, DEFAULT_VARIANT_B, SAMPLE } from "@/lib/sample";
 import { EMPTY_RESULT, type Variant, type VariantResult } from "@/lib/types";
 
-const MAX_TOKENS = 1024;
+// Headroom for models that think by default — thinking tokens count against max_tokens.
+const MAX_TOKENS = 4096;
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
