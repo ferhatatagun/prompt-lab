@@ -75,6 +75,10 @@ model, and an id that isn't in the catalog is priced as the newest model of its
 family. Models that reject sampling parameters (most current ones) don't get
 `temperature` sent; the control is disabled for them.
 
+## Use it as a skill
+
+The same idea ships as an agent skill, `skills/prompt-ab-test/`. Give the agent two prompts (or models) and a set of inputs and it compares them on output, cost and latency, then states the trade-off instead of going by gut feeling. Copy that folder to `~/.claude/skills/` (Claude Code) or find it on [Agensi](https://www.agensi.io).
+
 ## Run locally
 
 ```bash
