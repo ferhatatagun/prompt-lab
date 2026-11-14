@@ -77,7 +77,7 @@ family. Models that reject sampling parameters (most current ones) don't get
 
 ## Use it as a skill
 
-The same idea ships as an agent skill, `skills/prompt-ab-test/`. Give the agent two prompts (or models) and a set of inputs and it compares them on output, cost and latency, then states the trade-off instead of going by gut feeling. Copy that folder to `~/.claude/skills/` (Claude Code) or find it on [Agensi](https://www.agensi.io).
+The same idea ships as an agent skill, `skills/prompt-ab-test/`. Give the agent two prompts (or models) and a set of inputs and it compares them on output, cost and latency, then states the trade-off instead of going by gut feeling. Copy that folder to `~/.claude/skills/` (Claude Code) or get it on [Agensi](https://agensi.io/skills/prompt-a-b-test-compare-prompts-by-cost-speed-and-output).
 
 ## Run locally
 
