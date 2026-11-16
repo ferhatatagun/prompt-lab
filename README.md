@@ -1,5 +1,7 @@
 # prompt-lab
 
+<img src="public/logo.png" alt="logo" width="96" height="96" align="right" />
+
 [![License: MIT](https://img.shields.io/badge/license-MIT-8b5cf6?style=flat-square)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/ferhatatagun/prompt-lab?style=flat-square&color=8b5cf6&logo=github)](https://github.com/ferhatatagun/prompt-lab/stargazers)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178c6?style=flat-square&logo=typescript&logoColor=white)](#)
